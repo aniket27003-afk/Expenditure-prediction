@@ -50,6 +50,8 @@ Write 4-7 short bullet insights covering:
 2. Largest categories and what drives them
 3. Any unusual spike or drop worth noticing
 4. One practical, specific saving suggestion
+Rules: never suggest cutting healthcare/pharmacy spending. Routine monthly
+subscriptions (Netflix etc.) are normal — do not call them wasteful.
 Use ₹ for amounts. Keep it conversational and concise."""
 
 
@@ -217,7 +219,19 @@ def detect_anomalies(summary_text: str) -> str:
         return "(Offline mode) Anomaly detection needs GROQ_API_KEY. Heuristic hint: any transaction > 3× your average is worth reviewing."
     return _chat(
         [
-            {"role": "system", "content": "You are a fraud-aware spending analyst. Given transaction stats and recent transactions, list any potentially unusual transactions and why (amount outlier, odd merchant, odd hour). Be concise."},
+            {"role": "system", "content": (
+                "You are a fraud-aware spending analyst. Given transaction stats and recent "
+                "transactions, flag ONLY genuinely unusual transactions:\n"
+                "- Amount outliers: a single transaction >3x the user's average transaction, "
+                "or >3x that category's typical spend.\n"
+                "Do NOT flag routine monthly bills (electricity, rent, recharge), standard "
+                "subscriptions (Netflix, Spotify...), or small everyday purchases — these are "
+                "normal even if they are someone's largest bill in that category.\n"
+                "Do NOT allege duplicates without evidence (same merchant + same amount + "
+                "same/adjacent date).\n"
+                "If nothing is truly unusual, say so plainly instead of inventing issues. "
+                "Be concise. Use ₹."
+            )},
             {"role": "user", "content": summary_text},
         ],
         temperature=0.3,
@@ -230,7 +244,15 @@ def forecast_spending(monthly_text: str) -> str:
         return "(Offline mode) Forecast needs GROQ_API_KEY. Rough estimate: expect next month ≈ average of last 3 months."
     return _chat(
         [
-            {"role": "system", "content": "You estimate next month's spending range from past monthly totals. Give a range like ₹22,000–₹24,000 with 2-line reasoning. This is an AI estimate, not financial advice."},
+            {"role": "system", "content": (
+                "You estimate next month's RECURRING baseline spending from past monthly totals. "
+                "Steps: 1) spot one-off spikes (a month inflated by single purchases >3x the "
+                "average, e.g. a phone/laptop) and EXCLUDE them to find the true monthly baseline; "
+                "2) give the baseline as a range like ₹4,000–₹5,000; "
+                "3) add one line naming the one-offs separately. "
+                "Never forecast by blindly averaging a normal month with a spike month. "
+                "This is an AI estimate, not financial advice."
+            )},
             {"role": "user", "content": f"Monthly totals:\n{monthly_text}"},
         ],
         temperature=0.4,

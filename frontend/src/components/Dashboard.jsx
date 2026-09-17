@@ -1,10 +1,13 @@
 import {
-  PieChart, Pie, Cell, Tooltip, ResponsiveContainer,
-  BarChart, Bar, XAxis, YAxis, CartesianGrid,
+  PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend,
+  XAxis, YAxis, CartesianGrid,
   LineChart, Line,
 } from 'recharts';
 
 const COLORS = ['#22d3ee', '#a78bfa', '#f472b6', '#facc15', '#4ade80', '#fb923c', '#60a5fa', '#f87171', '#2dd4bf', '#e879f9'];
+
+// Compact axis ticks: 45000 -> "₹45k"
+const inrCompact = (v) => (v >= 1000 ? `₹${Math.round(v / 1000)}k` : `₹${v}`);
 
 export default function Dashboard({ data }) {
   if (!data) return null;
@@ -24,12 +27,20 @@ export default function Dashboard({ data }) {
         <div>
           <h3>Category-wise spending</h3>
           {catData.length === 0 ? <p className="muted">No data yet.</p> : (
-            <ResponsiveContainer width="100%" height={260}>
+            <ResponsiveContainer width="100%" height={300}>
               <PieChart>
-                <Pie data={catData} dataKey="value" nameKey="name" outerRadius={100} label>
+                <Pie
+                  data={catData}
+                  dataKey="value"
+                  nameKey="name"
+                  outerRadius={95}
+                  label={({ name, percent }) => (percent > 0.05 ? `${name} ${(percent * 100).toFixed(0)}%` : '')}
+                  labelLine={false}
+                >
                   {catData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                 </Pie>
-                <Tooltip formatter={(v) => `₹${Number(v).toLocaleString('en-IN')}`} />
+                <Tooltip formatter={(v, name) => [`₹${Number(v).toLocaleString('en-IN')}`, name]} />
+                <Legend formatter={(v) => <span style={{ color: '#e2e8f0' }}>{v}</span>} />
               </PieChart>
             </ResponsiveContainer>
           )}
@@ -38,12 +49,17 @@ export default function Dashboard({ data }) {
           <h3>Spending trend</h3>
           {trendData.length === 0 ? <p className="muted">No data yet.</p> : (
             <ResponsiveContainer width="100%" height={260}>
-              <LineChart data={trendData}>
+              <LineChart data={trendData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-                <XAxis dataKey="month" stroke="#94a3b8" />
-                <YAxis stroke="#94a3b8" />
+                <XAxis dataKey="month" stroke="#94a3b8" tickLine={false} />
+                <YAxis
+                  stroke="#94a3b8"
+                  width={55}
+                  tickFormatter={inrCompact}
+                  domain={[0, (dataMax) => Math.ceil(((dataMax || 0) * 1.15) / 5000) * 5000]}
+                />
                 <Tooltip formatter={(v) => `₹${Number(v).toLocaleString('en-IN')}`} />
-                <Line type="monotone" dataKey="total" stroke="#22d3ee" strokeWidth={2} />
+                <Line type="monotone" dataKey="total" stroke="#22d3ee" strokeWidth={2} dot={{ r: 4 }} />
               </LineChart>
             </ResponsiveContainer>
           )}
