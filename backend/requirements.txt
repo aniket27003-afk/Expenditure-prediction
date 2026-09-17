@@ -1,0 +1,14 @@
+# Flexible lower bounds (NOT exact pins) so pip can pick prebuilt
+# wheels for your Python version / OS (e.g. Python 3.14 on Windows).
+fastapi>=0.115
+uvicorn[standard]>=0.34
+sqlalchemy>=2.0
+pydantic>=2.10
+pydantic-settings>=2.7
+python-dotenv>=1.0
+pandas>=2.2
+httpx>=0.28
+python-multipart>=0.0.20
+# PostgreSQL driver v3 (has Windows/Python 3.14 wheels).
+# Use URLs like: postgresql+psycopg://user:pass@host:5432/db
+psycopg[binary]>=3.1
