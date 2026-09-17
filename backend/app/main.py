@@ -5,6 +5,7 @@ Flow: Web UI → FastAPI → Transaction Parser → LLM → PostgreSQL
       → Python/SQL analytics → summary → LLM → insights → Dashboard
 """
 from datetime import datetime
+import json
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
@@ -172,7 +173,9 @@ def _summary_text_for_user(db: Session, user_id: int) -> tuple[str, dict]:
     return text, summary
 
 
-def _save_insight(db: Session, user_id: int, kind: str, message: str) -> models.AIInsight:
+def _save_insight(db: Session, user_id: int, kind: str, message: str | dict) -> models.AIInsight:
+    if isinstance(message, dict):
+        message = json.dumps(message, ensure_ascii=False)
     ins = models.AIInsight(user_id=user_id, insight_type=kind, message=message)
     db.add(ins)
     db.commit()

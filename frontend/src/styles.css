@@ -21,3 +21,10 @@ th, td { padding: 8px; border-bottom: 1px solid #334155; text-align: left; }
 .insight { white-space: pre-wrap; background: #0b1220; border-radius: 8px; padding: 12px; margin: 8px 0; }
 .error { color: #f87171; }
 .muted { color: var(--muted); }
+.insight-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+.insight-card { background: #0b1220; border: 1px solid #334155; border-radius: 10px; padding: 12px; }
+.insight-card h4 { margin: 0 0 6px; font-size: .78rem; color: var(--accent); text-transform: uppercase; letter-spacing: .05em; }
+.insight-card p { margin: 0; font-size: .9rem; line-height: 1.45; }
+.forecast-hero { text-align: center; background: #0b1220; border: 1px solid var(--accent); border-radius: 10px; padding: 16px; margin-bottom: 10px; }
+.forecast-hero .range { font-size: 1.8rem; font-weight: 800; color: var(--accent); margin-top: 4px; }
+.ok-note { color: #4ade80; font-weight: 600; }
